@@ -1,4 +1,5 @@
-// Copyright 2017 Mike Fricker. All Rights Reserved.
+using System.IO;
+using UnrealBuildTool;
 
 namespace UnrealBuildTool.Rules
 {
@@ -7,7 +8,18 @@ namespace UnrealBuildTool.Rules
         public StreetMapImporting(ReadOnlyTargetRules Target)
 			: base(Target)
         {
-            PrivateDependencyModuleNames.AddRange(
+            // Enabling IWYU
+            PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+
+            PrivatePCHHeaderFile = "Public/StreetMapImporting.h";
+
+            // Private include path
+            PrivateIncludePaths.Add(Path.Combine(ModuleDirectory, "Private"));
+
+            // Public include path
+            PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Public"));
+
+            PublicDependencyModuleNames.AddRange(
                 new string[] {
                     "Core",
                     "CoreUObject",
@@ -17,15 +29,19 @@ namespace UnrealBuildTool.Rules
                     "AssetTools",
                     "Projects",
                     "Slate",
-                    "EditorStyle",
                     "SlateCore",
+                    "EditorStyle",
                     "PropertyEditor",
                     "RenderCore",
-                    "ShaderCore",
                     "RHI",
                     "RawMesh",
                     "AssetTools",
                     "AssetRegistry",
+                }
+            );
+
+            PublicDependencyModuleNames.AddRange(
+                new string[] {
                     "StreetMapRuntime"
                 }
             );
