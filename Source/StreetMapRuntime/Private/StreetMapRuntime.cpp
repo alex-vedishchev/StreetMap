@@ -7,26 +7,17 @@
 
 class FStreetMapRuntimeModule : public IModuleInterface
 {
-
 public:
 
-	// IModuleInterface interface
-	virtual void StartupModule() override;
-	virtual void ShutdownModule() override;
+    virtual void StartupModule() override
+    {
 
+    }
+
+    virtual void ShutdownModule() override
+    {
+
+    }
 };
 
-
-IMPLEMENT_MODULE( FStreetMapRuntimeModule, StreetMapRuntime )
-
-
-
-void FStreetMapRuntimeModule::StartupModule()
-{
-}
-
-
-void FStreetMapRuntimeModule::ShutdownModule()
-{
-}
-
+IMPLEMENT_MODULE(FStreetMapRuntimeModule, StreetMapRuntime)

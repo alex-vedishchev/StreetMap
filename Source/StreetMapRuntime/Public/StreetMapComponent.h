@@ -7,7 +7,6 @@
 #include "StreetMapSceneProxy.h"
 #include "StreetMapComponent.generated.h"
 
-
 class UBodySetup;
 
 /**
@@ -85,9 +84,7 @@ public:
 	 * @return Sets the street map object
 	 */
 	UFUNCTION(BlueprintCallable, Category = "StreetMap")
-		void SetStreetMap(UStreetMap* NewStreetMap, bool bClearPreviousMeshIfAny = false, bool bRebuildMesh = false);
-
-
+	void SetStreetMap(UStreetMap* NewStreetMap, bool bClearPreviousMeshIfAny = false, bool bRebuildMesh = false);
 
 	//** Begin Interface_CollisionDataProvider Interface */
 	virtual bool GetPhysicsTriMeshData(struct FTriMeshCollisionData* CollisionData, bool InUseAllTriData) override;
@@ -126,8 +123,6 @@ public:
 	/** Rebuilds the graphics and physics mesh representation if we don't have one right now.  Designed to be called on demand. */
 	void BuildMesh();
 
-
-
 protected:
 
 	/** Giving a default material to the mesh if no valid material is already assigned or materials array is empty. */
@@ -145,23 +140,21 @@ protected:
 	/** Adds 3D triangles to the raw mesh */
 	void AddTriangles(const TArray<FVector>& Points, const TArray<int32>& PointIndices, const FVector& ForwardVector, const FVector& UpVector, const FColor& Color, FBox& MeshBoundingBox);
 
-
 protected:
 
 	/** The street map we're representing. */
 	UPROPERTY(EditAnywhere, Category = "StreetMap")
-		UStreetMap* StreetMap;
+	UStreetMap* StreetMap;
 
 	UPROPERTY(EditAnywhere, Category = "StreetMap")
-		FStreetMapMeshBuildSettings MeshBuildSettings;
+	FStreetMapMeshBuildSettings MeshBuildSettings;
 
 	UPROPERTY(EditAnywhere, Category = "StreetMap")
-		FStreetMapCollisionSettings CollisionSettings;
+	FStreetMapCollisionSettings CollisionSettings;
 
 	//** Physics data for mesh collision. */
 	UPROPERTY(Transient)
-		UBodySetup* StreetMapBodySetup;
-
+	UBodySetup* StreetMapBodySetup;
 
 protected:
 	//
@@ -170,18 +163,17 @@ protected:
 
 	/** Cached raw mesh vertices */
 	UPROPERTY()
-		TArray< struct FStreetMapVertex > Vertices;
+	TArray< struct FStreetMapVertex > Vertices;
 
 	/** Cached raw mesh triangle indices */
 	UPROPERTY()
-		TArray< uint32 > Indices;
+	TArray< uint32 > Indices;
 
 	/** Cached bounding box */
 	UPROPERTY()
-		FBoxSphereBounds CachedLocalBounds;
+	FBoxSphereBounds CachedLocalBounds;
 
 	/** Cached StreetMap DefaultMaterial */
 	UPROPERTY()
-		UMaterialInterface* StreetMapDefaultMaterial;
-
+	UMaterialInterface* StreetMapDefaultMaterial;
 };

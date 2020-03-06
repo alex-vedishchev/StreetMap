@@ -307,14 +307,21 @@ void UStreetMapComponent::GenerateMesh()
 				// calculate fill Z for buildings
 				// either use the defined height or extrapolate from building level count
 				float BuildingFillZ = 0.0f;
-				if (bWant3DBuildings) {
-					if (Building.Height > 0) {
-						BuildingFillZ = Building.Height;
-					}
-					else if (Building.BuildingLevels > 0) {
-						BuildingFillZ = (float)Building.BuildingLevels * BuildingLevelFloorFactor;
-					}
-				}		
+                if (bWant3DBuildings)
+                {
+                    if (Building.Height > 0)
+                    {
+                        BuildingFillZ = Building.Height;
+                    }
+                    else if (Building.BuildingLevels > 0)
+                    {
+                        BuildingFillZ = (float)Building.BuildingLevels * BuildingLevelFloorFactor;
+                    }
+                    //else
+                    //{
+                    //    BuildingFillZ = (float)6 * BuildingLevelFloorFactor;
+                    //}
+                }
 
 				// Top of building
 				{
@@ -326,107 +333,107 @@ void UStreetMapComponent::GenerateMesh()
 					AddTriangles( TempPoints, TriangulatedVertexIndices, FVector::ForwardVector, FVector::UpVector, BuildingFillColor, MeshBoundingBox );
 				}
 
-				if( bWant3DBuildings && (Building.Height > KINDA_SMALL_NUMBER || Building.BuildingLevels > 0) )
-				{
-					// NOTE: Lit buildings can't share vertices beyond quads (all quads have their own face normals), so this uses a lot more geometry!
-					if( bWantLitBuildings )
-					{
-						// Create edges for the walls of the 3D buildings
-						for( int32 LeftPointIndex = 0; LeftPointIndex < Building.BuildingPoints.Num(); ++LeftPointIndex )
-						{
-							const int32 RightPointIndex = ( LeftPointIndex + 1 ) % Building.BuildingPoints.Num();
+                if (bWant3DBuildings && (Building.Height > KINDA_SMALL_NUMBER || Building.BuildingLevels > 0 || BuildingFillZ > KINDA_SMALL_NUMBER))
+                {
+                    // NOTE: Lit buildings can't share vertices beyond quads (all quads have their own face normals), so this uses a lot more geometry!
+                    if (bWantLitBuildings)
+                    {
+                        // Create edges for the walls of the 3D buildings
+                        for (int32 LeftPointIndex = 0; LeftPointIndex < Building.BuildingPoints.Num(); ++LeftPointIndex)
+                        {
+                            const int32 RightPointIndex = (LeftPointIndex + 1) % Building.BuildingPoints.Num();
 
-							TempPoints.SetNum( 4, false );
+                            TempPoints.SetNum(4, false);
 
-							const int32 TopLeftVertexIndex = 0;
-							TempPoints[ TopLeftVertexIndex ] = FVector( Building.BuildingPoints[ WindsClockwise ? RightPointIndex : LeftPointIndex ], BuildingFillZ );
+                            const int32 TopLeftVertexIndex = 0;
+                            TempPoints[TopLeftVertexIndex] = FVector(Building.BuildingPoints[WindsClockwise ? RightPointIndex : LeftPointIndex], BuildingFillZ);
 
-							const int32 TopRightVertexIndex = 1;
-							TempPoints[ TopRightVertexIndex ] = FVector( Building.BuildingPoints[ WindsClockwise ? LeftPointIndex : RightPointIndex ], BuildingFillZ );
+                            const int32 TopRightVertexIndex = 1;
+                            TempPoints[TopRightVertexIndex] = FVector(Building.BuildingPoints[WindsClockwise ? LeftPointIndex : RightPointIndex], BuildingFillZ);
 
-							const int32 BottomRightVertexIndex = 2;
-							TempPoints[ BottomRightVertexIndex ] = FVector( Building.BuildingPoints[ WindsClockwise ? LeftPointIndex : RightPointIndex ], 0.0f );
+                            const int32 BottomRightVertexIndex = 2;
+                            TempPoints[BottomRightVertexIndex] = FVector(Building.BuildingPoints[WindsClockwise ? LeftPointIndex : RightPointIndex], 0.0f);
 
-							const int32 BottomLeftVertexIndex = 3;
-							TempPoints[ BottomLeftVertexIndex ] = FVector( Building.BuildingPoints[ WindsClockwise ? RightPointIndex : LeftPointIndex ], 0.0f );
+                            const int32 BottomLeftVertexIndex = 3;
+                            TempPoints[BottomLeftVertexIndex] = FVector(Building.BuildingPoints[WindsClockwise ? RightPointIndex : LeftPointIndex], 0.0f);
 
 
-							TempIndices.SetNum( 6, false );
+                            TempIndices.SetNum(6, false);
 
-							TempIndices[ 0 ] = BottomLeftVertexIndex;
-							TempIndices[ 1 ] = TopLeftVertexIndex;
-							TempIndices[ 2 ] = BottomRightVertexIndex;
+                            TempIndices[0] = BottomLeftVertexIndex;
+                            TempIndices[1] = TopLeftVertexIndex;
+                            TempIndices[2] = BottomRightVertexIndex;
 
-							TempIndices[ 3 ] = BottomRightVertexIndex;
-							TempIndices[ 4 ] = TopLeftVertexIndex;
-							TempIndices[ 5 ] = TopRightVertexIndex;
+                            TempIndices[3] = BottomRightVertexIndex;
+                            TempIndices[4] = TopLeftVertexIndex;
+                            TempIndices[5] = TopRightVertexIndex;
 
-							const FVector FaceNormal = FVector::CrossProduct( ( TempPoints[ 0 ] - TempPoints[ 2 ] ).GetSafeNormal(), ( TempPoints[ 0 ] - TempPoints[ 1 ] ).GetSafeNormal() );
-							const FVector ForwardVector = FVector::UpVector;
-							const FVector UpVector = FaceNormal;
-							AddTriangles( TempPoints, TempIndices, ForwardVector, UpVector, BuildingFillColor, MeshBoundingBox );
-						}
-					}
-					else
-					{
-						// Create vertices for the bottom
-						const int32 FirstBottomVertexIndex = this->Vertices.Num();
-						for( int32 PointIndex = 0; PointIndex < Building.BuildingPoints.Num(); ++PointIndex )
-						{
-							const FVector2D Point = Building.BuildingPoints[ PointIndex ];
+                            const FVector FaceNormal = FVector::CrossProduct((TempPoints[0] - TempPoints[2]).GetSafeNormal(), (TempPoints[0] - TempPoints[1]).GetSafeNormal());
+                            const FVector ForwardVector = FVector::UpVector;
+                            const FVector UpVector = FaceNormal;
+                            AddTriangles(TempPoints, TempIndices, ForwardVector, UpVector, BuildingFillColor, MeshBoundingBox);
+                        }
+                    }
+                    else
+                    {
+                        // Create vertices for the bottom
+                        const int32 FirstBottomVertexIndex = this->Vertices.Num();
+                        for (int32 PointIndex = 0; PointIndex < Building.BuildingPoints.Num(); ++PointIndex)
+                        {
+                            const FVector2D Point = Building.BuildingPoints[PointIndex];
 
-							FStreetMapVertex& NewVertex = *new( this->Vertices )FStreetMapVertex();
-							NewVertex.Position = FVector( Point, 0.0f );
-							NewVertex.TextureCoordinate = FVector2D( 0.0f, 0.0f );	// NOTE: We're not using texture coordinates for anything yet
-							NewVertex.TangentX = FVector::ForwardVector;	 // NOTE: Tangents aren't important for these unlit buildings
-							NewVertex.TangentZ = FVector::UpVector;
-							NewVertex.Color = BuildingFillColor;
+                            FStreetMapVertex& NewVertex = *new(this->Vertices)FStreetMapVertex();
+                            NewVertex.Position = FVector(Point, 0.0f);
+                            NewVertex.TextureCoordinate = FVector2D(0.0f, 0.0f);	// NOTE: We're not using texture coordinates for anything yet
+                            NewVertex.TangentX = FVector::ForwardVector;	 // NOTE: Tangents aren't important for these unlit buildings
+                            NewVertex.TangentZ = FVector::UpVector;
+                            NewVertex.Color = BuildingFillColor;
 
-							MeshBoundingBox += NewVertex.Position;
-						}
+                            MeshBoundingBox += NewVertex.Position;
+                        }
 
-						// Create edges for the walls of the 3D buildings
-						for( int32 LeftPointIndex = 0; LeftPointIndex < Building.BuildingPoints.Num(); ++LeftPointIndex )
-						{
-							const int32 RightPointIndex = ( LeftPointIndex + 1 ) % Building.BuildingPoints.Num();
+                        // Create edges for the walls of the 3D buildings
+                        for (int32 LeftPointIndex = 0; LeftPointIndex < Building.BuildingPoints.Num(); ++LeftPointIndex)
+                        {
+                            const int32 RightPointIndex = (LeftPointIndex + 1) % Building.BuildingPoints.Num();
 
-							const int32 BottomLeftVertexIndex = FirstBottomVertexIndex + LeftPointIndex;
-							const int32 BottomRightVertexIndex = FirstBottomVertexIndex + RightPointIndex;
-							const int32 TopRightVertexIndex = FirstTopVertexIndex + RightPointIndex;
-							const int32 TopLeftVertexIndex = FirstTopVertexIndex + LeftPointIndex;
+                            const int32 BottomLeftVertexIndex = FirstBottomVertexIndex + LeftPointIndex;
+                            const int32 BottomRightVertexIndex = FirstBottomVertexIndex + RightPointIndex;
+                            const int32 TopRightVertexIndex = FirstTopVertexIndex + RightPointIndex;
+                            const int32 TopLeftVertexIndex = FirstTopVertexIndex + LeftPointIndex;
 
-							this->Indices.Add( BottomLeftVertexIndex );
-							this->Indices.Add( TopLeftVertexIndex );
-							this->Indices.Add( BottomRightVertexIndex );
+                            this->Indices.Add(BottomLeftVertexIndex);
+                            this->Indices.Add(TopLeftVertexIndex);
+                            this->Indices.Add(BottomRightVertexIndex);
 
-							this->Indices.Add( BottomRightVertexIndex );
-							this->Indices.Add( TopLeftVertexIndex );
-							this->Indices.Add( TopRightVertexIndex );
-						}
-					}
-				}
-			}
-			else
-			{
-				// @todo: Triangulation failed for some reason, possibly due to degenerate polygons.  We can
-				//        probably improve the algorithm to avoid this happening.
-			}
+                            this->Indices.Add(BottomRightVertexIndex);
+                            this->Indices.Add(TopLeftVertexIndex);
+                            this->Indices.Add(TopRightVertexIndex);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // @todo: Triangulation failed for some reason, possibly due to degenerate polygons.  We can
+                //        probably improve the algorithm to avoid this happening.
+            }
 
-			// Building border
-			if( bWantBuildingBorderOnGround )
-			{
-				for( int32 PointIndex = 0; PointIndex < Building.BuildingPoints.Num(); ++PointIndex )
-				{
-					AddThick2DLine(
-						Building.BuildingPoints[ PointIndex ],
-						Building.BuildingPoints[ ( PointIndex + 1 ) % Building.BuildingPoints.Num() ],
-						BuildingBorderZ,
-						BuildingBorderThickness,		// Thickness
-						BuildingBorderColor,
-						BuildingBorderColor,
-						MeshBoundingBox );
-				}
-			}
+            // Building border
+            if (bWantBuildingBorderOnGround)
+            {
+                for (int32 PointIndex = 0; PointIndex < Building.BuildingPoints.Num(); ++PointIndex)
+                {
+                    AddThick2DLine(
+                        Building.BuildingPoints[PointIndex],
+                        Building.BuildingPoints[(PointIndex + 1) % Building.BuildingPoints.Num()],
+                        BuildingBorderZ,
+                        BuildingBorderThickness,		// Thickness
+                        BuildingBorderColor,
+                        BuildingBorderColor,
+                        MeshBoundingBox);
+                }
+            }
 		}
 
 		CachedLocalBounds = MeshBoundingBox;
